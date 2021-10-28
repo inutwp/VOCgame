@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+  app:
+    build:
+      args:
+        user: vocgame
+        uid: 1000
+      context: .
+      dockerfile: Dockerfile
+    container_name: vocgame-app
+    restart: unless-stopped
+    working_dir: /var/www/vocgame
+    volumes:
+      - ./build/:/var/www/vocgame
+    networks:
+      - vocgame
+
+  nginx:
+    image: nginx:alpine
+    container_name: vocgame-nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ./build:/var/www/vocgame
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - vocgame
+
+networks:
+  vocgame:
+    driver: bridge
