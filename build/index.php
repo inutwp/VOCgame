@@ -149,7 +149,7 @@ function DoLogin()
 	if (isset($loginAction['body']['error'])) {
 		return false;
 	}
-
+	CollectVoucher();
 	return true;
 }
 
