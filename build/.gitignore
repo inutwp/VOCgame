@@ -1,2 +1,4 @@
 /vendor
 *.log
+.bash_history
+.viminfo
