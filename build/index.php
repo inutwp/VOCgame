@@ -34,6 +34,11 @@ $routes = [
         'expression' => '/^\/?$/',
         'controller_method' => 'Home'
     ],
+	'test' => [
+        'method' => 'GET',
+        'expression' => '/^\/(test)?$/',
+        'controller_method' => 'Test'
+    ],
 	'api' => [
         'method' => 'GET',
         'expression' => '/^\/(api)?$/',
@@ -111,6 +116,11 @@ function Home() {
 
 function Index() {
 	return ['isSuccess' => true, 'message' => 'API VOCGame v1.0'];
+}
+
+function Test() {
+	header('Content-Type: text/html; charset=UTF-8');
+	die(phpinfo());
 }
 
 function CreateSession()

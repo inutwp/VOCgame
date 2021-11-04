@@ -1,49 +1,39 @@
-FROM php:7.4-fpm
+FROM php:7.4.25-fpm-alpine3.14
 
-# Arguments defined in docker-compose.yml
+# Arguments
 ARG user
 ARG uid
-ARG BASE_DIR=/var/www/
-ARG CONFIG_DIR=/config
-ARG WORK_DIR=/var/www/vocgame
+ARG config_dir
+ARG work_dir
+ARG src_dir
 
-# Install system dependencies
-RUN apt-get upgrade -y \
-    && apt-get update -y \
-    && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
+# Install Requirement
+RUN apk --update --no-cache add \
+	ca-certificates \
+	bash \
+	vim \
+	tzdata \
     htop \
-    bash \
-    vim \
-    procps \
-    supervisor \
-# Clear cache
-    && apt-get clean && rm -rf /var/lib/apt/lists/* \
-# Install PHP extensions
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
-
-# Config supervisord
-COPY ${CONFIG_DIR}/supervisord/vocgame.conf /etc/supervisor/conf.d/vocgame.conf
+# Set Timezone
+	&& cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime \
+	&& echo "Asia/Jakarta" > /etc/timezone \
+# Remove Cache
+	&& rm -rf /var/lib/apt/lists/* \
+	&& rm -rf /var/cache/apk/*
 
 # Set working directory
-WORKDIR ${WORK_DIR}
+WORKDIR $work_dir
 
-# RUN groupadd -g $uid $user
-
-RUN useradd -G www-data,root -u $uid -d ${WORK_DIR} $user \
-    && chown -R $user:$user ${WORK_DIR} \
-    && chmod -R 0644 ${WORK_DIR} \
-    && find ${WORK_DIR} -type d -print0 | xargs -0 chmod 0755
-
-USER $user
+# Add user
+RUN addgroup -g $uid -S $user \
+    && adduser -S -D -H -u $uid -h $work_dir -s /bin/bash -G $user -g $user $user \
+# Change permission application directory
+	&& chown -R $user:$user $work_dir \
+	&& chmod -R 0644 $work_dir \
+	&& find $work_dir -type d -print0 | xargs -0 chmod 0755
 
 EXPOSE 9000
 
-# Run supervisord
-CMD ["/usr/bin/supervisord", "-n"]
+USER $user
+
+CMD ["php-fpm", "--nodaemonize"]
