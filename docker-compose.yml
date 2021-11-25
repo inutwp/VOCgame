@@ -7,7 +7,7 @@ services:
         uid: 11125
         config_dir: /config
         work_dir: /var/www/vocgame
-        src_dir: /src
+        src_dir: /build
       context: .
       dockerfile: Dockerfile
     container_name: vocgame-app
@@ -15,6 +15,7 @@ services:
     working_dir: /var/www/vocgame
     volumes:
       - ./build:/var/www/vocgame
+      - phpconfig:/usr/local/etc/php-fpm.d
     networks:
       - vocgame
 
@@ -30,6 +31,8 @@ services:
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - vocgame
+volumes:
+  phpconfig:
 
 networks:
   vocgame:
