@@ -32,15 +32,10 @@ COPY $config_dir/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Create work dir
 RUN mkdir -p $work_dir
-
-# Set working directory
 WORKDIR $work_dir
-# Copy existing application directory
-COPY --chown=$user $src_dir $work_dir
-# Add user
+COPY $src_dir $work_dir
 RUN addgroup -g $uid -S $user \
     && adduser -S -D -H -u $uid -h $work_dir -s /bin/bash -G $user -g $user $user \
-# Change permission application directory
 	&& chown -R $user:$user $work_dir \
 	&& chmod -R 0644 $work_dir \
 	&& find $work_dir -type d -print0 | xargs -0 chmod 0755 \
