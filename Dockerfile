@@ -1,51 +1,65 @@
-FROM php:fpm-alpine3.14
+FROM alpine:3.15
 
-# Labels
-LABEL vocgame.maintainer="inutwp <inutwp.com>"
-LABEL vocgame.version="v1.0"
-LABEL vocgame.base.image="php:fpm-alpine3.14"
-
-# Arguments
+# Argument list
+ARG ALPINE_VERSION=3.15
 ARG user
 ARG uid
-ARG config_dir
 ARG work_dir
+ARG config_dir
 ARG src_dir
 
 # Install Requirement
-RUN apk --update --no-cache add \
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
+    && echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
+	&& apk --update --no-cache add \
 	ca-certificates \
 	bash \
 	vim \
-	tzdata \
+    curl \
+    tzdata \
     htop \
-	supervisor \
+    supervisor \
+	php8 \
+    php8-common \
+    php8-fpm \
+    php8-openssl \
+    php8-mbstring \
+    php8-intl \
+    php8-phar \
+    php8-session \
+    php8-gd \
+    php8-zip \
+    php8-zlib \
+    php8-json \
+    php8-curl \
+    php8-opcache \
+	&& ln -s /usr/bin/php8 /usr/bin/php \
 # Set Timezone
 	&& cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime \
 	&& echo "Asia/Jakarta" > /etc/timezone \
 # Remove Cache
 	&& rm -rf /var/lib/apt/lists/* \
-	&& rm -rf /var/cache/apk/*
+	&& rm -rf /var/cache/apk/* \
+# Set Config PHP
+    && rm -rf /etc/php8/php-fpm.d/www.conf
+COPY $config_dir/php/www.conf /etc/php8/php-fpm.d/www.conf
 
-# Configure php-fpm
-COPY $config_dir/php/www.conf /usr/local/etc/php-fpm.d/www.conf
+# Configure supervisord
+COPY $config_dir/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Create work dir
-RUN mkdir -p $work_dir
+# Set working directory
 WORKDIR $work_dir
 COPY $src_dir $work_dir
-RUN addgroup -g $uid -S $user \
-    && adduser -S -D -H -u $uid -h $work_dir -s /bin/bash -G $user -g $user $user \
-	&& chown -R $user:$user $work_dir \
+RUN chown -R $user:$user $work_dir \
 	&& chmod -R 0644 $work_dir \
 	&& find $work_dir -type d -print0 | xargs -0 chmod 0755 \
-	&& chown -R $user:$user /run
+    && chown -R $user:$user /var/log/ \
+	&& chown -R $user:$user /var/tmp/ \
+    && chown -R $user:$user /run
 
-# Expose Port FPM
 EXPOSE 9000
 
-# Change User
 USER $user
 
-# Run PHPFpm
-CMD ["php-fpm", "--nodaemonize"]
+# Run supervisord
+CMD ["/usr/bin/supervisord", "-n", "-c" ,"/etc/supervisor/conf.d/supervisord.conf"]

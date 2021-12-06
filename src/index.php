@@ -260,24 +260,26 @@ function TopUp()
 
 function CommitPayment()
 {
-	$payment = (new api())->SendRequest('POST', $header, 'get_payment_pool', ['display_id' => '383444081702102188']);
-	$header = [
-		':authority: airtime.codapayments.com',
-		':method: GET',
-		':path: /airtime/track-gaclient-info?TxnId=6340309099381095459',
-		':scheme: https',
-		'accept: text/plain, */*; q=0.01',
-		'referer: https://airtime.codapayments.com/airtime/epc-checkout?type=3&txn_id=6340309099381095459',
-		'x-requested-with: XMLHttpRequest',
-		'cookie: JSESSIONID=561C7AFA638EE5B06533E56A5A0EEC9A; language=in_ID; land_url="https://kiosgamer.co.id/Codapay/pending/?TxnId=6340309099381095459&OrderId=11062842827530843388"; browser_type=desktop-web; amfID=; language=in_ID; _gcl_au=1.1.717356190.1634022008; _ga=GA1.2.1312979816.1634022009; _gid=GA1.2.1831172393.1634022009; browser_type=desktop-web; _gat_UA-38419864-3=1'
-	];
-	$payment = (new api())->SendRequest('GET', $header, 'payment_gw');
+	// $payment = (new api())->SendRequest('POST', $header, 'get_payment_pool', ['display_id' => '383444081702102188']);
+	// $header = [
+	// 	':authority: airtime.codapayments.com',
+	// 	':method: GET',
+	// 	':path: /airtime/track-gaclient-info?TxnId=6340309099381095459',
+	// 	':scheme: https',
+	// 	'accept: text/plain, */*; q=0.01',
+	// 	'referer: https://airtime.codapayments.com/airtime/epc-checkout?type=3&txn_id=6340309099381095459',
+	// 	'x-requested-with: XMLHttpRequest',
+	// 	'cookie: JSESSIONID=561C7AFA638EE5B06533E56A5A0EEC9A; language=in_ID; land_url="https://kiosgamer.co.id/Codapay/pending/?TxnId=6340309099381095459&OrderId=11062842827530843388"; browser_type=desktop-web; amfID=; language=in_ID; _gcl_au=1.1.717356190.1634022008; _ga=GA1.2.1312979816.1634022009; _gid=GA1.2.1831172393.1634022009; browser_type=desktop-web; _gat_UA-38419864-3=1'
+	// ];
+	// $payment = (new api())->SendRequest('GET', $header, 'payment_gw');
+	return;
 }
 
 function CheckPayment()
 {
-	$header = ['Referer: https://kiosgamer.co.id/app/100067/buy/0'];
-	$checkPayment = SendRequest('POST', $header, 'get_payment_pool', ['display_id' => $_SESSION['display_id']]);
-	// https://kiosgamer.co.id/Codapay/pending/?TxnId=6345697039231975097&OrderId=16119305472622712473
-	return $checkPayment;
+	// $header = ['Referer: https://kiosgamer.co.id/app/100067/buy/0'];
+	// $checkPayment = SendRequest('POST', $header, 'get_payment_pool', ['display_id' => $_SESSION['display_id']]);
+	// // https://kiosgamer.co.id/Codapay/pending/?TxnId=6345697039231975097&OrderId=16119305472622712473
+	// return $checkPayment;
+	return;
 }
