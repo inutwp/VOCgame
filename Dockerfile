@@ -2,7 +2,6 @@ FROM alpine:3.15
 
 # Argument list
 ARG ALPINE_VERSION=3.15
-ARG PHP_VERSION=7.4
 ARG user
 ARG uid
 ARG work_dir
@@ -12,7 +11,6 @@ ARG src_dir
 # Install Requirement
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
     && echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
-	&& echo "https://packages.whatwedo.ch/php-alpine/${ALPINE_VERSION}/php-${PHP_VERSION}" >> /etc/apk/repositories \
 	&& apk --update --no-cache add \
 	ca-certificates \
 	bash \
@@ -21,22 +19,21 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" > /etc/a
     tzdata \
     htop \
     supervisor \
-	php \
-    php-common \
-    php-fpm \
-    php-openssl \
-    php-mbstring \
-    php-intl \
-    php-phar \
-    php-session \
-    php-gd \
-    php-zip \
-    php-zlib \
-    php-json \
-    php-curl \
-    php-opcache \
-    && rm /usr/bin/php \
-	&& ln -s /usr/bin/php7 /usr/bin/php \
+	php8 \
+    php8-common \
+    php8-fpm \
+    php8-openssl \
+    php8-mbstring \
+    php8-intl \
+    php8-phar \
+    php8-session \
+    php8-gd \
+    php8-zip \
+    php8-zlib \
+    php8-json \
+    php8-curl \
+    php8-opcache \
+	&& ln -s /usr/bin/php8 /usr/bin/php \
 # Set Timezone
 	&& cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime \
 	&& echo "Asia/Jakarta" > /etc/timezone \
@@ -44,8 +41,8 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" > /etc/a
 	&& rm -rf /var/lib/apt/lists/* \
 	&& rm -rf /var/cache/apk/* \
 # Set Config PHP
-    && rm -rf /etc/php7/php-fpm.d/www.conf
-COPY $config_dir/php/www.conf /etc/php7/php-fpm.d/www.conf
+    && rm -rf /etc/php8/php-fpm.d/www.conf
+COPY $config_dir/php/www.conf /etc/php8/php-fpm.d/www.conf
 
 # Configure supervisord
 COPY $config_dir/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -60,7 +57,7 @@ RUN chown -R $user:$user $work_dir \
 	&& chown -R $user:$user /var/tmp/ \
     && chown -R $user:$user /run
 
-EXPOSE 9450
+EXPOSE 9000
 
 USER $user
 
