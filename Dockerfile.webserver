@@ -9,45 +9,33 @@ ARG config_dir
 ARG src_dir
 
 # Install Requirement
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" >> /etc/apk/repositories \
     && echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
-	&& apk --update --no-cache add \
-	ca-certificates \
+	&& apk update \
+	&& apk upgrade \
+	&& apk add --update \
 	bash \
 	vim \
-    curl \
     tzdata \
     htop \
     supervisor \
-	php8 \
-    php8-common \
-    php8-fpm \
-    php8-openssl \
-    php8-mbstring \
-    php8-intl \
-    php8-phar \
-    php8-session \
-    php8-gd \
-    php8-zip \
-    php8-zlib \
-    php8-json \
-    php8-curl \
-    php8-opcache \
-	&& ln -s /usr/bin/php8 /usr/bin/php \
+    nginx \
 # Set Timezone
 	&& cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime \
 	&& echo "Asia/Jakarta" > /etc/timezone \
+	&& apk del tzdata \
 # Remove Cache
 	&& rm -rf /var/lib/apt/lists/* \
-	&& rm -rf /var/cache/apk/* \
-# Set Config PHP
-    && rm -rf /etc/php8/php-fpm.d/www.conf
-COPY $config_dir/php/www.conf /etc/php8/php-fpm.d/www.conf
+	&& rm -rf /var/cache/apk/*
+
+# Copy Nginx Config
+COPY $config_dir/nginx/conf.d/ /etc/nginx/conf.d/
+COPY $config_dir/nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Configure supervisord
-COPY $config_dir/supervisord/supervisord.app.conf /etc/supervisor/conf.d/supervisord.conf
+COPY $config_dir/supervisord/supervisord.webserver.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Set working directory
+# Set Working Directory
 WORKDIR $work_dir
 COPY $src_dir $work_dir
 RUN chown -R $user:$user $work_dir \
@@ -56,8 +44,8 @@ RUN chown -R $user:$user $work_dir \
     && chown -R $user:$user /var/log/ \
 	&& chown -R $user:$user /var/tmp/ \
     && chown -R $user:$user /run
-
-EXPOSE 9000
+	
+EXPOSE 80 443
 
 USER $user
 
