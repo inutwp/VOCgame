@@ -9,7 +9,7 @@ ARG config_dir
 ARG src_dir
 
 # Install Requirement
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" >> /etc/apk/repositories \
     && echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
 	&& apk --update --no-cache add \
 	ca-certificates \
