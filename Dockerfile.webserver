@@ -1,0 +1,53 @@
+FROM alpine:3.15
+
+# Argument list
+ARG ALPINE_VERSION=3.15
+ARG user
+ARG uid
+ARG work_dir
+ARG config_dir
+ARG src_dir
+
+# Install Requirement
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" >> /etc/apk/repositories \
+    && echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
+	&& apk update \
+	&& apk upgrade \
+	&& apk add --update \
+	bash \
+	vim \
+    tzdata \
+    htop \
+    supervisor \
+    apache2 \
+	apache2-proxy \
+	apache2-ssl\
+# Set Timezone
+	&& cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime \
+	&& echo "Asia/Jakarta" > /etc/timezone \
+	&& apk del tzdata \
+# Remove Cache
+	&& rm -rf /var/lib/apt/lists/* \
+	&& rm -rf /var/cache/apk/* \
+# Config Apache
+	&& rm -rf /etc/apache2/conf.d/default.conf
+COPY $config_dir/apache/site.conf /etc/apache2/conf.d/default.conf
+COPY $config_dir/apache/httpd.conf /etc/apache2/httpd.conf
+
+# Configure supervisord
+COPY $config_dir/supervisord/supervisord.proxy.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Set Working Directory
+WORKDIR $work_dir
+COPY $src_dir $work_dir
+RUN chown -R $user:$user $work_dir \
+	&& chmod -R 0644 $work_dir \
+	&& find $work_dir -type d -print0 | xargs -0 chmod 0755 \
+    && chown -R $user:$user /var/log/ \
+	&& chown -R $user:$user /var/tmp/ \
+    && chown -R $user:$user /run
+
+EXPOSE 7700
+
+# Run supervisord
+CMD ["/usr/bin/supervisord", "-n", "-c" ,"/etc/supervisor/conf.d/supervisord.conf"]

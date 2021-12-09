@@ -1,15 +1,15 @@
-version: '3.7'
+version: '3.9'
+
 services:
   app:
     build:
       args:
         user: nobody
-        uid: 11125
         config_dir: /config
         work_dir: /var/www/vocgame
         src_dir: /src
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.app
     container_name: vocgame-app
     restart: always
     networks:
@@ -17,24 +17,43 @@ services:
         ipv4_address: 192.168.29.1
         aliases:
           - app
-
-
-  nginx:
-    image: nginx:alpine
-    container_name: vocgame-nginx
+  
+  webserver:
+    build:
+      args:
+        user: apache
+        config_dir: /config
+        work_dir: /var/www/vocgame
+        src_dir: /src
+      context: .
+      dockerfile: Dockerfile.webserver
+    container_name: vocgame-webserver
     restart: always
-    ports:
-      - 80:80
-    volumes:
-      - ./src:/var/www/vocgame
-      - ./config/nginx/conf.d/:/etc/nginx/conf.d/
-      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       internal:
         ipv4_address: 192.168.29.2
         aliases:
           - webserver
-      
+
+  proxy:
+    build:
+      args:
+        user: nginx
+        config_dir: /config
+        work_dir: /var/www/vocgame
+        src_dir: /src
+      context: .
+      dockerfile: Dockerfile.proxy
+    container_name: vocgame-proxy
+    restart: always
+    ports:
+      - 80:80
+    networks:
+      internal:
+        ipv4_address: 192.168.29.3
+        aliases:
+          - proxy
+
 networks:
   internal:
     ipam:

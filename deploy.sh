@@ -4,6 +4,10 @@ clear
 echo "Down Service...."
 docker-compose down --remove-orphans
 docker system prune -a -f
+echo ""
+
+sleep 3
+
 echo "Build and Up Service...."
 docker-compose build --no-cache --pull
 docker-compose up -d --remove-orphans
